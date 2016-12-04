@@ -1,7 +1,4 @@
 
-#NOCACHE=--no-cache
-NOCACHE=
-
 IMAGE=caiok/bookkeeper:4.4.0
 BK_LOCAL_DATA_DIR=/tmp/data
 CONTAINER_NAME=bookkeeper
@@ -9,7 +6,12 @@ DOCKER_HOSTNAME=hostname
 
 CONTAINER_IP=$(eval container_ip=$(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME)) )
 
-.PHONY: all build run create start stop shell exec root-shell root-exec ssh ssh-ext ssh-root info ip clean-files clean
+#NOCACHE=--no-cache
+NOCACHE=
+
+# -------------------------------- #
+
+.PHONY: all build run create start stop shell exec root-shell root-exec info ip clean-files clean
 
 # -------------------------------- #
 
@@ -73,21 +75,13 @@ root-shell root-exec:
 
 info ip:
 	@echo 
-	@echo "Image: $(REPO):$(TAG)"
+	@echo "Image: $(IMAGE)"
 	@echo "Container name: $(CONTAINER_NAME)"
 	@echo
 	-@echo "Actual Image: $(shell docker inspect --format '{{ .RepoTags }} (created {{.Created }})' $(IMAGE))"
 	-@echo "Actual Container: $(shell docker inspect --format '{{ .Name }} (created {{.Created }})' $(CONTAINER_NAME))"
 	-@echo "Actual Container IP: $(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME))"
 	@echo
-
-# -------------------------------- #
-	
-ssh:
-	ssh -o StrictHostKeychecking=no -o "UserKnownHostsFile /dev/null" $(DOCKER_USER)@$(CONTAINER_IP)
-
-ssh-root:
-	ssh -o StrictHostKeychecking=no -o "UserKnownHostsFile /dev/null" root@$(CONTAINER_IP)
 
 # -------------------------------- #
 
