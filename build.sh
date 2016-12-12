@@ -5,6 +5,8 @@
 set -e
 # Set bash to echo each command
 set -x
+# Set bash to stop if an unset variable is found
+set -u
 # -------------- #
 
 # -------------- #
@@ -21,7 +23,7 @@ ln -sv /local/bash_profile.sh /etc/profile.d/
 # -------------- #
 # Base installations
 apk update
-apk add bash nano less wget tar grep
+apk add bash nano less wget tar grep netcat-openbsd
 # -------------- #
 
 # -------------- #
@@ -29,25 +31,13 @@ apk add bash nano less wget tar grep
 mkdir -p /opt
 wget -q -O - ${BK_DOWNLOAD_DIR} | tar -xzf - -C /opt
 mv /opt/bookkeeper-server-${BK_VERSION} ${BK_DIR}
-# Bookkeeper setup
-mkdir -p ${BK_JOURNAL_DIR} ${BK_LEDGER_DIR} ${BK_INDEX_DIR}
-sed -r -i.bak \
-    -e "s|^journalDirectory=.*|journalDirectory=${BK_JOURNAL_DIR}|" \
-    -e "s|^ledgerDirectories=.*|ledgerDirectories=${BK_LEDGER_DIR}|" \
-    -e "s|^[# ]*indexDirectories=.*|indexDirectories=${BK_INDEX_DIR}|" \
-    -e "s|^[# ]*useHostNameAsBookieID=false|useHostNameAsBookieID=true|" \
-    ${BK_DIR}/conf/bk_server.conf
-diff ${BK_DIR}/conf/bk_server.conf.bak ${BK_DIR}/conf/bk_server.conf || true
 # -------------- #
 
 # -------------- #
-# Save ENV variables for using in run.sh
+# Save ARG variables for using in run.sh and shells
 cat << EOF > /local/env.sh
 export BK_VERSION=${BK_VERSION}
 export BK_DIR=${BK_DIR}
-export BK_JOURNAL_DIR=${BK_JOURNAL_DIR}
-export BK_LEDGER_DIR=${BK_LEDGER_DIR}
-export BK_INDEX_DIR=${BK_INDEX_DIR}
 EOF
 ln -sv /local/env.sh /etc/profile.d/
 # -------------- #

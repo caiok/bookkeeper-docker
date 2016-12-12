@@ -35,11 +35,13 @@ run:
 	    --hostname "$(DOCKER_HOSTNAME)" \
 	    --name "$(CONTAINER_NAME)" \
 	    $(IMAGE)
-	
+
+# -------------------------------- #
+
 run-debug:
-	docker run -it \
+	docker run -it --rm \
 	    --hostname "$(DOCKER_HOSTNAME)" \
-	    --name "$(CONTAINER_NAME)" \
+	    --name "$(CONTAINER_NAME)-debug" \
 	    $(IMAGE)
 
 # -------------------------------- #
