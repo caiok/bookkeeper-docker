@@ -19,7 +19,7 @@ sed -r -i.bak \
 	-e "s|^[# ]*indexDirectories.*=.*|indexDirectories=${BK_INDEX_DIR}|" \
 	-e "s|^[# ]*useHostNameAsBookieID.*=.*false|useHostNameAsBookieID=true|" \
 	${BK_DIR}/conf/bk_server.conf
-diff ${BK_DIR}/conf/bk_server.conf.bak ${BK_DIR}/conf/bk_server.conf || true
+#diff ${BK_DIR}/conf/bk_server.conf.bak ${BK_DIR}/conf/bk_server.conf || true
 
 mkdir -pv ${BK_JOURNAL_DIR} ${BK_LEDGER_DIR} ${BK_INDEX_DIR}
 # -------------- #
@@ -41,13 +41,20 @@ zk_server1=$(echo ${ZK_SERVERS} | cut -d"," -f1)
 zk_server1_host=$(echo ${zk_server1} | cut -d":" -f1)
 zk_server1_port=$(echo ${zk_server1} | cut -d":" -f2)
 
-echo -en "\nWaiting for Zookeeper..."
-while [[ "$(nc -z ${zk_server1_host} ${zk_server1_port})" != "0" ]] ; do
+echo -en "\nWaiting for Zookeeper (${zk_server1_host}:${zk_server1_port})..."
+while [[ $(nc -z ${zk_server1_host} ${zk_server1_port}) -ne 0 ]] ; do
 	echo -n "."
 	sleep 2
 done
 echo " Connected!"
 set -x
+# -------------- #
+
+# -------------- #
+# Initialize metadata on zookeeper if needed
+if [[ ! -z ${FORMAT_METADATA+x} && "${FORMAT_METADATA}" == "yes" ]]; then
+	/opt/bookkeeper/bin/bookkeeper shell metaformat -n -f
+fi
 # -------------- #
 
 # -------------- #
