@@ -4,6 +4,9 @@ BK_LOCAL_DATA_DIR=/tmp/data
 CONTAINER_NAME=bookkeeper
 DOCKER_HOSTNAME=hostname
 
+ZK_CONTAINER_NAME=test_zookeeper
+ZK_LOCAL_DATA_DIR=/tmp/data/zookkeeper
+
 CONTAINER_IP=$(eval container_ip=$(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME)) )
 
 #NOCACHE=--no-cache
@@ -21,7 +24,7 @@ all:
 # -------------------------------- #
 
 build:
-
+	-docker rmi -f $(IMAGE)
 	time docker build \
 	    $(NOCACHE) \
 	    -t $(IMAGE) .
@@ -29,20 +32,38 @@ build:
 # -------------------------------- #
 
 run:
-
-	docker run -d \
-	    --volume $(BK_LOCAL_DATA_DIR):/data \
+	mkdir -p /tmp/data/journal /tmp/data/ledger /tmp/data/index
+	-docker rm -f $(CONTAINER_NAME)
+	docker run -it\
+		--network host \
+	    --volume $(BK_LOCAL_DATA_DIR)/journal:/data/journal \
+	    --volume $(BK_LOCAL_DATA_DIR)/ledger:/data/ledger \
+	    --volume $(BK_LOCAL_DATA_DIR)/index:/data/index \
 	    --hostname "$(DOCKER_HOSTNAME)" \
 	    --name "$(CONTAINER_NAME)" \
+	    --env ZK_SERVERS=localhost:2181 \
+	    $(FORMAT_METADATA) \
 	    $(IMAGE)
 
 # -------------------------------- #
 
-run-debug:
-	docker run -it --rm \
-	    --hostname "$(DOCKER_HOSTNAME)" \
-	    --name "$(CONTAINER_NAME)-debug" \
-	    $(IMAGE)
+run-format:
+	#$(eval FORMAT_METADATA ?= --env FORMAT_METADATA=yes)
+	make run FORMAT_METADATA="--env FORMAT_METADATA=yes"
+
+# -------------------------------- #
+
+run-zk:
+	mkdir -p $(ZK_LOCAL_DATA_DIR)/data $(ZK_LOCAL_DATA_DIR)/datalog
+	-docker rm -f $(ZK_CONTAINER_NAME)
+	docker run -d \
+		--network host \
+		--name $(ZK_CONTAINER_NAME) \
+		--restart always \
+		-v $(ZK_LOCAL_DATA_DIR)/data:/data \
+		-v $(ZK_LOCAL_DATA_DIR)/datalog:/datalog \
+		-p 2181:2181 \
+		zookeeper
 
 # -------------------------------- #
 

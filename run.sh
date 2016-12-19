@@ -58,6 +58,10 @@ fi
 # -------------- #
 
 # -------------- #
-# Run bookie
-${BK_DIR}/bin/bookkeeper bookie
+# Run command
+if [[ "$*" == "" ]]; then
+	${BK_DIR}/bin/bookkeeper bookie ${BOOKIE_OPTS}
+else
+	${BK_DIR}/bin/bookkeeper "$@"
+fi
 # -------------- #
