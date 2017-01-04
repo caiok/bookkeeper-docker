@@ -23,7 +23,7 @@ WORKDIR ${BK_DIR}
 
 EXPOSE 3181/tcp
 
-HEALTHCHECK --interval=3s --timeout=10s CMD /bin/bash /local/healthcheck.sh
+HEALTHCHECK --interval=3s --timeout=60s CMD /bin/bash /local/healthcheck.sh
 
 ENTRYPOINT [ "/bin/bash", "/local/run.sh" ]
 CMD []

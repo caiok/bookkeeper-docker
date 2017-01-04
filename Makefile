@@ -1,13 +1,17 @@
 
-IMAGE=caiok/bookkeeper:4.4.0
-BK_LOCAL_DATA_DIR=/tmp/data
-CONTAINER_NAME=bookkeeper
-DOCKER_HOSTNAME=hostname
+IMAGE = caiok/bookkeeper:4.4.0
+BOOKIE ?= 1
+DOCKER_NETWORK = bk_network
+
+CONTAINER_NAME = bookkeeper-$(BOOKIE)
+DOCKER_HOSTNAME = hostname
+BK_LOCAL_DATA_DIR = /tmp/test_bk
+BK_LOCAL_CONTAINER_DATA_DIR = $(BK_LOCAL_DATA_DIR)/$(CONTAINER_NAME)
 
 ZK_CONTAINER_NAME=test_zookeeper
-ZK_LOCAL_DATA_DIR=/tmp/data/zookkeeper
+ZK_LOCAL_DATA_DIR=$(BK_LOCAL_DATA_DIR)/zookkeeper
 
-CONTAINER_IP=$(eval container_ip=$(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME)) )
+CONTAINER_IP=$(shell docker inspect --format '{{ .NetworkSettings.IPAddress }}' $(CONTAINER_NAME))
 
 #NOCACHE=--no-cache
 NOCACHE=
@@ -31,35 +35,47 @@ build:
 
 # -------------------------------- #
 
-run:
-	mkdir -p /tmp/data/journal /tmp/data/ledger /tmp/data/index
+run-bk:
+	# Temporary gimmick: clear all data because of bookkeeper blocking check on host / data integrity
+	-sudo rm -rf $(BK_LOCAL_CONTAINER_DATA_DIR)
+	
+	mkdir -p $(BK_LOCAL_DATA_DIR) \
+			$(BK_LOCAL_CONTAINER_DATA_DIR) \
+			$(BK_LOCAL_CONTAINER_DATA_DIR)/journal \
+			$(BK_LOCAL_CONTAINER_DATA_DIR)/ledger \
+			$(BK_LOCAL_CONTAINER_DATA_DIR)/index
+	
 	-docker rm -f $(CONTAINER_NAME)
 	docker run -it\
-		--network host \
-	    --volume $(BK_LOCAL_DATA_DIR)/journal:/data/journal \
-	    --volume $(BK_LOCAL_DATA_DIR)/ledger:/data/ledger \
-	    --volume $(BK_LOCAL_DATA_DIR)/index:/data/index \
-	    --hostname "$(DOCKER_HOSTNAME)" \
+		--network $(DOCKER_NETWORK) \
+	    --volume $(BK_LOCAL_CONTAINER_DATA_DIR)/journal:/data/journal \
+	    --volume $(BK_LOCAL_CONTAINER_DATA_DIR)/ledger:/data/ledger \
+	    --volume $(BK_LOCAL_CONTAINER_DATA_DIR)/index:/data/index \
 	    --name "$(CONTAINER_NAME)" \
-	    --env ZK_SERVERS=localhost:2181 \
-	    $(FORMAT_METADATA) \
+	    --hostname "$(CONTAINER_NAME)" \
+	    --env ZK_SERVERS=$(ZK_CONTAINER_NAME):2181 \
 	    $(IMAGE)
 
 # -------------------------------- #
 
 run-format:
-	#$(eval FORMAT_METADATA ?= --env FORMAT_METADATA=yes)
-	make run FORMAT_METADATA="--env FORMAT_METADATA=yes"
+	docker run -it --rm \
+		--network $(DOCKER_NETWORK) \
+		--env ZK_SERVERS=$(ZK_CONTAINER_NAME):2181 \
+		$(IMAGE) \
+		shell metaformat
 
 # -------------------------------- #
 
 run-zk:
-	mkdir -p $(ZK_LOCAL_DATA_DIR)/data $(ZK_LOCAL_DATA_DIR)/datalog
+
+	-docker network create $(DOCKER_NETWORK)
+	mkdir -pv $(BK_LOCAL_DATA_DIR) $(ZK_LOCAL_DATA_DIR) $(ZK_LOCAL_DATA_DIR)/data $(ZK_LOCAL_DATA_DIR)/datalog
 	-docker rm -f $(ZK_CONTAINER_NAME)
-	docker run -d \
-		--network host \
-		--name $(ZK_CONTAINER_NAME) \
-		--restart always \
+	docker run -it --rm \
+		--network $(DOCKER_NETWORK) \
+		--name "$(ZK_CONTAINER_NAME)" \
+		--hostname "$(ZK_CONTAINER_NAME)" \
 		-v $(ZK_LOCAL_DATA_DIR)/data:/data \
 		-v $(ZK_LOCAL_DATA_DIR)/datalog:/datalog \
 		-p 2181:2181 \
@@ -67,10 +83,11 @@ run-zk:
 
 # -------------------------------- #
 
-create:
-	-docker stop $(CONTAINER_NAME)
-	-docker rm $(CONTAINER_NAME)
-	make run
+run-dice:
+	docker run -it --rm \
+		--network $(DOCKER_NETWORK) \
+		--env ZOOKEEPER_SERVERS=$(ZK_CONTAINER_NAME):2181 \
+		caiok/bookkeeper-tutorial
 
 # -------------------------------- #
 

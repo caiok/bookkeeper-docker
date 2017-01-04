@@ -5,7 +5,7 @@ set -x -e -u
 # -------------- #
 
 # -------------- #
-# Load build time arguments
+# Load build/run time arguments
 source /local/env.sh
 # -------------- #
 
