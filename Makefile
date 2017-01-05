@@ -37,7 +37,7 @@ build:
 
 run-bk:
 	# Temporary gimmick: clear all data because of bookkeeper blocking check on host / data integrity
-	-sudo rm -rf $(BK_LOCAL_CONTAINER_DATA_DIR)
+	#-sudo rm -rf $(BK_LOCAL_CONTAINER_DATA_DIR)
 	
 	mkdir -p $(BK_LOCAL_DATA_DIR) \
 			$(BK_LOCAL_CONTAINER_DATA_DIR) \
