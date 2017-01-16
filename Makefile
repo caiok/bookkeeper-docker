@@ -63,7 +63,7 @@ run-format:
 		--network $(DOCKER_NETWORK) \
 		--env ZK_SERVERS=$(ZK_CONTAINER_NAME):2181 \
 		$(IMAGE) \
-		shell metaformat
+		bookkeeper shell metaformat
 
 # -------------------------------- #
 
