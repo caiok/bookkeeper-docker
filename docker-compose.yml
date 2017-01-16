@@ -29,13 +29,11 @@ services:
             ZK_SERVERS: zoo1:2181
     
     dice1:
-        image: caiok/bookkeeper:4.4.0
+        image: caiok/bookkeeper-tutorial
         restart: always
-        entrypoint:
-            /local/run-demo.sh
         depends_on:
             - zoo1
             - bookie1
             - bookie2
         environment:
-            ZK_SERVERS: zoo1:2181
+            ZOOKEEPER_SERVERS: zoo1:2181
