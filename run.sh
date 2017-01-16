@@ -5,11 +5,6 @@ set -x -e -u
 # -------------- #
 
 # -------------- #
-# Load build time arguments
-source /local/env.sh
-# -------------- #
-
-# -------------- #
 # Bookkeeper setup
 sed -r -i.bak \
 	-e "s|^zkServers.*=.*|zkServers=${ZK_SERVERS}|" \
@@ -22,16 +17,6 @@ sed -r -i.bak \
 #diff ${BK_DIR}/conf/bk_server.conf.bak ${BK_DIR}/conf/bk_server.conf || true
 
 mkdir -pv ${BK_JOURNAL_DIR} ${BK_LEDGER_DIR} ${BK_INDEX_DIR}
-# -------------- #
-
-# -------------- #
-# Save ENV variables for using in shells
-cat << EOF >> /local/env.sh
-export BK_PORT=${BK_PORT}
-export BK_JOURNAL_DIR=${BK_JOURNAL_DIR}
-export BK_LEDGER_DIR=${BK_LEDGER_DIR}
-export BK_INDEX_DIR=${BK_INDEX_DIR}
-EOF
 # -------------- #
 
 # -------------- #
