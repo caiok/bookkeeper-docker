@@ -95,7 +95,7 @@ run-demo:
 	$(eval WAIT_CMD := read -p 'Press Enter to close...')
 	-sudo rm -rf $(BK_LOCAL_DATA_DIR)
 	x-terminal-emulator -e "bash -c \"make run-zk ; $(WAIT_CMD)"\"
-	sleep 5
+	sleep 3
 	x-terminal-emulator -e "bash -c \"make run-format ; make run-bk BOOKIE=1 ; $(WAIT_CMD)\""
 	sleep 3
 	x-terminal-emulator -e "bash -c \"make run-bk BOOKIE=2 ; $(WAIT_CMD)\""
