@@ -1,10 +1,13 @@
 
-IMAGE = caiok/bookkeeper:4.4.0
+VERSION ?= 4.4.0
+IMAGE ?= caiok/bookkeeper:$(VERSION)
 BOOKIE ?= 1
-DOCKER_NETWORK = bk_network
+DOCKER_NETWORK ?= bk_network
+
+BUILD_DIR ?= $(VERSION)
 
 CONTAINER_NAME = bookkeeper-$(BOOKIE)
-DOCKER_HOSTNAME = hostname
+DOCKER_HOSTNAME = $(shell hostname)
 BK_LOCAL_DATA_DIR = /tmp/test_bk
 BK_LOCAL_CONTAINER_DATA_DIR = $(BK_LOCAL_DATA_DIR)/$(CONTAINER_NAME)
 
@@ -29,6 +32,8 @@ all:
 
 build:
 	-docker rmi -f $(IMAGE)
+	
+	cd $(BUILD_DIR) ; \
 	time docker build \
 	    $(NOCACHE) \
 	    -t $(IMAGE) .
@@ -68,7 +73,6 @@ run-format:
 # -------------------------------- #
 
 run-zk:
-
 	-docker network create $(DOCKER_NETWORK)
 	mkdir -pv $(BK_LOCAL_DATA_DIR) $(ZK_LOCAL_DATA_DIR) $(ZK_LOCAL_DATA_DIR)/data $(ZK_LOCAL_DATA_DIR)/datalog
 	-docker rm -f $(ZK_CONTAINER_NAME)
