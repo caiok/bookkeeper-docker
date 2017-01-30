@@ -15,6 +15,10 @@ fi
 # -------------- #
 
 # -------------- #
+# Copy input config files in Bookkeeper configuration directory
+cp -vaf /conf/* ${BK_DIR}/conf || true
+chown -R "$BK_USER" ${BK_DIR}/conf
+
 # Bookkeeper setup
 sed -r -i.bak \
 	-e "s|^zkServers.*=.*|zkServers=${ZK_SERVERS}|" \

@@ -72,22 +72,31 @@ Start a dice application (you can run it several times to view the behavior in a
 
 ## Configuration
 
-> Warning: not implemented yet!
+Bookkeeper configuration is located in `${BK_DIR}/conf`. When run script is executed it copies all contents of `/conf` dir to `${BK_DIR}/conf`, then apply several substitutions in `${BK_DIR}/conf/bk_server.conf` with values contained in environment variables.
 
-Bookkeeper configuration is located in `/conf`. One way to change it is mounting your config file as a volume:
+Some of these values should be left unchanged (e.g. the internal directories where bookkeeper stores data) unless you are sure of what you are doing. The environment variables that you possibly need to change (and that necessarily need to specify even if you pass your own bk conf files) are listed below.
 
-	$ docker run --name bookie1 -d -v $(pwd)/bk_server.conf:/conf/bk_server.conf bookkeeper
+Example showing how to use your own configuration files:
 
-## Environment variables
+	$ docker run --name bookie1 -d \
+		-v $(pwd)/bk_server.conf:/conf/bk_server.conf \
+		-v $(pwd)/<file>.conf:/conf/<file>.conf \
+		-e BK_PORT=3181 \
+		-e ZK_SERVERS=zk-server1:2181,zk-server2:2181 \
+		 bookkeeper
 
-ZooKeeper recommended defaults are used if `bk_server.conf` file is not provided. They can be overridden using the following environment variables.
+### `BK_PORT`
 
-    $ docker run -e "ZK_SERVERS=localhost:2181" --name bookie1 -d bookkeeper
+This variable allows you to specify the port on which Bookkeeper should listen for incoming connections.
 
 ### `ZK_SERVERS`
 
 This variable allows you to specify a list of machines of the Zookeeper ensemble. Each entry has the form of `host:port`. Entries are separated with a comma. 
-Do note that this variable will not have any effect if you start the container with a `/conf` directory that already contains the `bk_server.conf` file.
+
+### Caveats
+
+When run starts the option `useHostNameAsBookieID=true` is always setted (no ways to change this behavior yet). Open an issue on Github if this creates inconvenients.
+
 
 ## Where to store data
 

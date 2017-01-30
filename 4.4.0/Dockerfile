@@ -59,7 +59,7 @@ ENV BK_DIR=/opt/bookkeeper-server-${BK_VERSION}
 ENV PATH=$PATH:${BK_DIR}/bin
 
 WORKDIR ${BK_DIR}
-VOLUME ["${BK_JOURNAL_DIR}", "${BK_LEDGER_DIR}", "${BK_INDEX_DIR}"]
+VOLUME ["/conf", "${BK_JOURNAL_DIR}", "${BK_LEDGER_DIR}", "${BK_INDEX_DIR}"]
 
 EXPOSE ${BK_PORT}/tcp
 
