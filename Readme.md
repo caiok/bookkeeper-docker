@@ -74,7 +74,7 @@ Start a dice application (you can run it several times to view the behavior in a
 
 Bookkeeper configuration is located in `${BK_DIR}/conf`. When run script is executed it copies all contents of `/conf` dir to `${BK_DIR}/conf`, then apply several substitutions in `${BK_DIR}/conf/bk_server.conf` with values contained in environment variables.
 
-Some of these values should be left unchanged (e.g. the internal directories where bookkeeper stores data) unless you are sure of what you are doing. The environment variables that you possibly need to change (and that necessarily need to specify even if you pass your own bk conf files) are listed below.
+Some of these values should be left unchanged (e.g. the container directories where bookkeeper stores data) unless you are sure of what you are doing. The environment variables that you possibly need to change (and that necessarily need to specify even if you pass your own bk conf files) are listed below.
 
 Example showing how to use your own configuration files:
 
@@ -95,7 +95,9 @@ This variable allows you to specify a list of machines of the Zookeeper ensemble
 
 ### Caveats
 
-When run starts the option `useHostNameAsBookieID=true` is always setted (no ways to change this behavior yet). Open an issue on Github if this creates inconvenients.
+If you pass one of these environment variables, the corresponding value in bk_server.conf will be rewritten, regardless of whether you have passed bk_server.con via volume mount.
+
+When run starts, the option `useHostNameAsBookieID=true` is always setted (no ways to change this behavior yet). Open an issue on Github if this creates inconvenients.
 
 
 ## Where to store data

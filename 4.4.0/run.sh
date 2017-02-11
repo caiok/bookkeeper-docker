@@ -4,13 +4,12 @@
 set -x -e -u
 # -------------- #
 
-echo "CIAO!"
-
 # -------------- #
 # Allow the container to be started with `--user`
 if [ "$1" = 'bookkeeper' -a "$(id -u)" = '0' ]; then
     chown -R "$BK_USER" "${BK_DIR}" "${BK_JOURNAL_DIR}" "${BK_LEDGER_DIR}" "${BK_INDEX_DIR}"
     exec su-exec "$BK_USER" /bin/bash "$0" "$@"
+    exit
 fi
 # -------------- #
 
@@ -21,16 +20,20 @@ chown -R "$BK_USER" ${BK_DIR}/conf
 
 # Bookkeeper setup
 sed -r -i.bak \
-	-e "s|^zkServers.*=.*|zkServers=${ZK_SERVERS}|" \
-	-e "s|^bookiePort.*=.*|bookiePort=${BK_PORT}|" \
 	-e "s|^journalDirectory.*=.*|journalDirectory=${BK_JOURNAL_DIR}|" \
 	-e "s|^ledgerDirectories.*=.*|ledgerDirectories=${BK_LEDGER_DIR}|" \
 	-e "s|^[# ]*indexDirectories.*=.*|indexDirectories=${BK_INDEX_DIR}|" \
 	-e "s|^[# ]*useHostNameAsBookieID.*=.*false|useHostNameAsBookieID=true|" \
 	${BK_DIR}/conf/bk_server.conf
-#diff ${BK_DIR}/conf/bk_server.conf.bak ${BK_DIR}/conf/bk_server.conf || true
 
-#mkdir -pv ${BK_JOURNAL_DIR} ${BK_LEDGER_DIR} ${BK_INDEX_DIR}
+if [[ "${ZK_SERVERS}" != "" ]]; then
+	sed -r -i "s|^zkServers.*=.*|zkServers=${ZK_SERVERS}|" ${BK_DIR}/conf/bk_server.conf
+fi
+if [[ "${BK_PORT}" != "" ]]; then
+	sed -r -i "s|^bookiePort.*=.*|bookiePort=${BK_PORT}|" ${BK_DIR}/conf/bk_server.conf
+fi
+
+diff ${BK_DIR}/conf/bk_server.conf.bak ${BK_DIR}/conf/bk_server.conf || true
 # -------------- #
 
 # -------------- #
@@ -50,18 +53,6 @@ sed -r -i.bak \
 # -------------- #
 
 # -------------- #
-# Initialize metadata on zookeeper if needed
-#if [[ ! -z ${FORMAT_METADATA+x} && "${FORMAT_METADATA}" == "yes" ]]; then
-#	/opt/bookkeeper/bin/bookkeeper shell metaformat -n -f
-#fi
-# -------------- #
-
-# -------------- #
 # Run command
-#if [[ "$*" == "" ]]; then
-#	${BK_DIR}/bin/bookkeeper bookie ${BOOKIE_OPTS}
-#else
-#	${BK_DIR}/bin/bookkeeper "$@"
-#fi
 exec "$@"
 # -------------- #
