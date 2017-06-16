@@ -13,7 +13,8 @@ ENV ZK_SERVERS= \
     BOOKIE_OPTS="" \
     BK_JOURNAL_DIR=/data/journal \
     BK_LEDGER_DIR=/data/ledger \
-    BK_INDEX_DIR=/data/index
+    BK_INDEX_DIR=/data/index \
+    BK_LEDGERS_PATH=
 
 # Add a user and make dirs
 RUN set -x \

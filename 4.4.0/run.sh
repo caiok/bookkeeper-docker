@@ -32,6 +32,9 @@ fi
 if [[ "${BK_PORT}" != "" ]]; then
 	sed -r -i "s|^bookiePort.*=.*|bookiePort=${BK_PORT}|" ${BK_DIR}/conf/bk_server.conf
 fi
+if [[ "${BK_LEDGERS_PATH}" != "" ]]; then
+	sed -r -i "s|^[# ]*zkLedgersRootPath.*=.*|zkLedgersRootPath=${BK_LEDGERS_PATH}|" ${BK_DIR}/conf/bk_server.conf
+fi
 
 diff ${BK_DIR}/conf/bk_server.conf.bak ${BK_DIR}/conf/bk_server.conf || true
 # -------------- #
@@ -50,6 +53,13 @@ diff ${BK_DIR}/conf/bk_server.conf.bak ${BK_DIR}/conf/bk_server.conf || true
 #done
 #echo " Connected!"
 #set -x
+# -------------- #
+
+
+# -------------- #
+# Trying to format bookkeeper dir on zookeeper. If the dir already exists, it does nothing.
+#exec bookkeeper shell metaformat -nonInteractive || true
+shell metaformat -nonInteractive || true
 # -------------- #
 
 # -------------- #

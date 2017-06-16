@@ -31,7 +31,7 @@ all:
 # -------------------------------- #
 
 build:
-	-docker rmi -f $(IMAGE)
+	#-docker rmi -f $(IMAGE)
 	
 	cd $(BUILD_DIR) ; \
 	time docker build \
@@ -99,8 +99,9 @@ run-demo:
 	$(eval WAIT_CMD := read -p 'Press Enter to close...')
 	x-terminal-emulator -e "bash -c \"make run-zk ; $(WAIT_CMD)"\"
 	sleep 3
-	x-terminal-emulator -e "bash -c \"make run-format FORMAT_OPTS=-nonInteractive ; make run-bk BOOKIE=1 ; $(WAIT_CMD)\""
-	sleep 3
+	#x-terminal-emulator -e "bash -c \"make run-format FORMAT_OPTS=-nonInteractive ; make run-bk BOOKIE=1 ; $(WAIT_CMD)\""
+	#sleep 3
+	x-terminal-emulator -e "bash -c \"make run-bk BOOKIE=1 ; $(WAIT_CMD)\""
 	x-terminal-emulator -e "bash -c \"make run-bk BOOKIE=2 ; $(WAIT_CMD)\""
 	x-terminal-emulator -e "bash -c \"make run-bk BOOKIE=3 ; $(WAIT_CMD)\""
 	sleep 6
