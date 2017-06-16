@@ -93,6 +93,10 @@ This variable allows you to specify the port on which Bookkeeper should listen f
 
 This variable allows you to specify a list of machines of the Zookeeper ensemble. Each entry has the form of `host:port`. Entries are separated with a comma. 
 
+### `BK_LEDGERS_PATH`
+
+This variable allows you to specify the root directory bookkeeper will use on Zookeeper.
+
 ### Caveats
 
 If you pass one of these environment variables, the corresponding value in bk_server.conf will be rewritten, regardless of whether you have passed bk_server.con via volume mount.
