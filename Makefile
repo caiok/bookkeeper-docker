@@ -30,6 +30,9 @@ all:
 
 # -------------------------------- #
 
+# Build the bookkeeper image.
+#   make build
+
 build:
 	#-docker rmi -f $(IMAGE)
 	
@@ -39,6 +42,10 @@ build:
 	    -t $(IMAGE) .
 
 # -------------------------------- #
+
+# Create and run a bookkeeper container with data persisted on local filesystem. It needs the zookkeeper container.
+# In order to launch several bookies, the command need the bookie number
+#   make run-bk BOOKIE=4
 
 run-bk:
 	# Temporary gimmick: clear all data because of bookkeeper blocking check on host / data integrity
@@ -63,6 +70,9 @@ run-bk:
 
 # -------------------------------- #
 
+# Create run and destroy a container that will format zookkeeper metadata
+#   make run-format
+
 run-format:
 	docker run -it --rm \
 		--network $(DOCKER_NETWORK) \
@@ -71,6 +81,9 @@ run-format:
 		bookkeeper shell metaformat $(FORMAT_OPTS)
 
 # -------------------------------- #
+
+# Create and run the zookkeeper container needed by the ensemble
+#   make run-zk
 
 run-zk:
 	-docker network create $(DOCKER_NETWORK)
@@ -87,6 +100,9 @@ run-zk:
 
 # -------------------------------- #
 
+# Create and run a container running the bookkeeper tutorial application (a simple dice rolling application). It's possibile
+# to run several dice applications in order to simulate a real life concurrent scenario.
+#   make run-dice
 run-dice:
 	docker run -it --rm \
 		--network $(DOCKER_NETWORK) \
@@ -95,6 +111,8 @@ run-dice:
 
 # -------------------------------- #
 
+# This is an example of a full bookkeeper ensemble of 3 bookies, a zookkeeper server and 2 client dice applications.
+#   make run-demo 
 run-demo:
 	$(eval WAIT_CMD := read -p 'Press Enter to close...')
 	x-terminal-emulator -e "bash -c \"make run-zk ; $(WAIT_CMD)"\"
@@ -114,6 +132,8 @@ run-demo:
 	@echo "  sudo rm -rf $(BK_LOCAL_DATA_DIR)"
 	@echo
 
+# -------------------------------- #
+# Other undocumented utilities     #
 # -------------------------------- #
 
 start:
